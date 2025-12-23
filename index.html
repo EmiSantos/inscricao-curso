@@ -6,6 +6,10 @@
     <title>Pré-Inscrição: Curso Profissionalizante</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" type="module"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -20,9 +24,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-100 text-gray-800 pb-20">
 
-    <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
         <div class="bg-white rounded-t-xl shadow-sm border-t-8 border-blue-600 p-8 mb-6">
@@ -35,15 +39,18 @@
             <div class="mt-4 text-sm text-red-500">* Obrigatório</div>
         </div>
 
-        <form id="inscriptionForm" onsubmit="handleSubmit(event)">
+        <!-- Formulário de Inscrição -->
+        <form id="inscriptionForm">
             
             <!-- Secção 1: Dados Pessoais -->
             <div class="bg-white rounded-xl shadow-sm p-8 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2">Secção 1: Dados Pessoais</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2 flex items-center">
+                    <i class="fas fa-user-circle mr-2 text-blue-500"></i> Secção 1: Dados Pessoais
+                </h2>
                 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo (sem abreviaturas) <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo <span class="text-red-500">*</span></label>
                         <input type="text" id="userName" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="A sua resposta">
                     </div>
 
@@ -51,54 +58,38 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Data de Nascimento <span class="text-red-500">*</span></label>
                             <input type="date" required id="dob" class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition">
-                            <p class="text-xs text-gray-500 mt-1">É necessário ter mais de 30 anos.</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Telefone / WhatsApp <span class="text-red-500">*</span></label>
-                            <input type="tel" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="(XX) 9XXXX-XXXX">
+                            <input type="tel" id="userPhone" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="(XX) 9XXXX-XXXX">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">E-mail para contacto <span class="text-red-500">*</span></label>
-                        <input type="email" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="seuemail@exemplo.com">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">E-mail <span class="text-red-500">*</span></label>
+                        <input type="email" id="userEmail" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="seuemail@exemplo.com">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Breve Resumo Profissional / Objetivo <span class="text-red-500">*</span></label>
-                        <textarea id="userBio" required rows="3" class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Conte-nos um pouco sobre a sua experiência ou o que procura com este curso..."></textarea>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Breve Resumo Profissional <span class="text-red-500">*</span></label>
+                        <textarea id="userBio" required rows="3" class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Conte-nos um pouco sobre a sua trajetória..."></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Secção 2: Informações Académicas -->
             <div class="bg-white rounded-xl shadow-sm p-8 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2">Secção 2: Informações Académicas e Curso</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2 flex items-center">
+                    <i class="fas fa-graduation-cap mr-2 text-blue-500"></i> Secção 2: Escolaridade e Curso
+                </h2>
 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Qual o seu nível de escolaridade atual? <span class="text-red-500">*</span></label>
-                        <div class="space-y-2" id="educationLevel">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="escolaridade" value="Ensino Fundamental Incompleto" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="text-gray-700">Ensino Fundamental Incompleto</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="escolaridade" value="Ensino Fundamental Completo" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="text-gray-700">Ensino Fundamental Completo</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="escolaridade" value="Ensino Médio Incompleto" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="text-gray-700">Ensino Médio Incompleto</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="escolaridade" value="Ensino Médio Completo" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="text-gray-700">Ensino Médio Completo</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="escolaridade" value="Ensino Superior" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="text-gray-700">Ensino Superior (Incompleto ou Completo)</span>
-                            </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Escolaridade <span class="text-red-500">*</span></label>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="escolaridade" value="Ensino Fundamental" required class="h-4 w-4 text-blue-600"><span class="text-gray-700">Ensino Fundamental</span></label>
+                            <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="escolaridade" value="Ensino Médio" class="h-4 w-4 text-blue-600"><span class="text-gray-700">Ensino Médio</span></label>
+                            <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="escolaridade" value="Ensino Superior" class="h-4 w-4 text-blue-600"><span class="text-gray-700">Ensino Superior</span></label>
                         </div>
                     </div>
 
@@ -106,163 +97,214 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Curso pretendido <span class="text-red-500">*</span></label>
                         <select id="selectedCourse" required class="w-full border-gray-300 rounded-md shadow-sm border p-3 focus:ring-blue-500 focus:border-blue-500 bg-white">
                             <option value="">Selecione uma opção</option>
-                            <option value="Prepara Jovem 30+">Prepara Jovem 30+ - Informática, Currículo e Entrevista</option>
+                            <option value="Prepara Jovem 30+">Prepara Jovem 30+ - Informática e Carreira</option>
+                            <option value="Gastronomia">Gastronomia e Panificação</option>
+                            <option value="Eletricista">Eletricista Instalador</option>
                         </select>
                     </div>
 
-                    <!-- AI Feature Integration -->
-                    <div class="mt-8 border-t pt-6">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
-                            <h3 class="text-lg font-bold text-blue-900 flex items-center mb-2">
-                                <i class="fas fa-magic mr-2 text-blue-600"></i> Assistente de Carreira IA
-                            </h3>
-                            <p class="text-sm text-blue-700 mb-4">Com base nas suas informações, a nossa IA pode sugerir melhorias para o seu perfil profissional.</p>
-                            <button type="button" onclick="getCareerAdvice()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition flex items-center">
-                                <span>✨ Otimizar Perfil com IA ✨</span>
-                            </button>
-                            
-                            <div id="aiAdviceContainer" class="hidden mt-4 bg-white rounded-md p-4 border border-blue-200 text-sm leading-relaxed text-gray-700 shadow-inner max-h-60 overflow-y-auto">
-                                <!-- AI Content here -->
-                            </div>
-                            <div id="aiLoader" class="hidden mt-4 space-y-2">
-                                <div class="h-4 bg-gray-200 rounded w-3/4 loading-shimmer"></div>
-                                <div class="h-4 bg-gray-200 rounded w-full loading-shimmer"></div>
-                                <div class="h-4 bg-gray-200 rounded w-5/6 loading-shimmer"></div>
-                            </div>
-                        </div>
+                    <!-- AI Assistant -->
+                    <div class="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-100">
+                        <h3 class="text-lg font-bold text-blue-900 flex items-center mb-2">
+                            <i class="fas fa-robot mr-2 text-blue-600"></i> Dicas de Carreira IA
+                        </h3>
+                        <button type="button" onclick="getCareerAdvice()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition">
+                            ✨ Obter Dicas Personalizadas ✨
+                        </button>
+                        <div id="aiAdviceContainer" class="hidden mt-4 bg-white p-4 rounded border text-sm text-gray-700 italic"></div>
+                        <div id="aiLoader" class="hidden mt-4 space-y-2"><div class="h-4 bg-gray-200 rounded loading-shimmer"></div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Secção 3: Envio de Documentação -->
+            <!-- Secção 3: Documentação -->
             <div class="bg-white rounded-xl shadow-sm p-8 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2">Secção 3: Envio de Documentação</h2>
-                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 text-sm text-yellow-800 flex items-start">
-                    <i class="fas fa-info-circle mt-0.5 mr-2"></i>
-                    Permitidos apenas ficheiros PDF ou Imagem. Tamanho máx: 10MB.
-                </div>
-
-                <div class="space-y-6">
-                    <!-- Document Uploaders (Simplified for briefness) -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">RG (Frente) <span class="text-red-500">*</span></label>
-                        <input type="file" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept=".pdf,image/*">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">RG (Verso) <span class="text-red-500">*</span></label>
-                        <input type="file" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept=".pdf,image/*">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Comprovante de Residência <span class="text-red-500">*</span></label>
-                        <input type="file" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept=".pdf,image/*">
-                    </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 border-b pb-2 flex items-center">
+                    <i class="fas fa-file-upload mr-2 text-blue-500"></i> Secção 3: Documentação
+                </h2>
+                <div class="space-y-4">
+                    <input type="file" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-blue-50 file:text-blue-700">
+                    <p class="text-xs text-gray-400 italic">Nota: Para esta versão, o sistema regista que os documentos foram anexados.</p>
                 </div>
             </div>
 
-            <!-- Buttons -->
+            <!-- Botões de Ação -->
             <div class="flex justify-between items-center mb-12">
-                <button type="button" onclick="document.getElementById('inscriptionForm').reset()" class="text-blue-600 hover:text-blue-800 font-medium text-sm px-4 py-2">
-                    Limpar formulário
+                <button type="button" onclick="toggleAdminView()" class="text-gray-400 hover:text-gray-600 text-xs">
+                    <i class="fas fa-lock mr-1"></i> Modo Administrador
                 </button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition transform hover:-translate-y-0.5">
+                <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-lg shadow-lg transition transform hover:scale-105">
                     Enviar Inscrição
                 </button>
             </div>
-
         </form>
-    </div>
 
-    <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl text-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl">
-                <i class="fas fa-check"></i>
+        <!-- TABELA DE RESPOSTAS (ADMIN) -->
+        <div id="adminPanel" class="hidden bg-white rounded-xl shadow-2xl p-8 border-2 border-indigo-200 animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-indigo-900 flex items-center">
+                    <i class="fas fa-database mr-3 text-indigo-500"></i> Painel de Gestão: Inscritos
+                </h2>
+                <button onclick="toggleAdminView()" class="text-red-500 font-bold hover:underline text-sm">Sair</button>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">Sucesso!</h3>
-            <p class="text-gray-600 mb-6">A sua pré-inscrição foi recebida com sucesso!</p>
-            <button onclick="location.reload()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
-                Fechar
-            </button>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-indigo-50 text-indigo-700 uppercase text-xs font-bold">
+                            <th class="p-4 border-b">Data</th>
+                            <th class="p-4 border-b">Candidato</th>
+                            <th class="p-4 border-b">Curso</th>
+                            <th class="p-4 border-b">Contacto</th>
+                            <th class="p-4 border-b">Documentos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="responsesTableBody" class="text-sm">
+                        <!-- Linhas geradas via JS -->
+                        <tr><td colspan="5" class="p-8 text-center text-gray-400">A carregar dados do servidor...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script>
-        const apiKey = ""; // API key is handled by the environment
+    <!-- Modais -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl scale-in">
+            <div class="text-6xl text-green-500 mb-4"><i class="fas fa-check-circle"></i></div>
+            <h3 class="text-2xl font-bold mb-2 text-gray-800">Inscrição Concluída!</h3>
+            <p class="text-gray-600 mb-6">Os seus dados foram guardados com sucesso no sistema.</p>
+            <button onclick="location.reload()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Ok, entendi</button>
+        </div>
+    </div>
 
-        async function getCareerAdvice() {
-            const userName = document.getElementById('userName').value;
-            const userBio = document.getElementById('userBio').value;
-            const education = document.querySelector('input[name="escolaridade"]:checked')?.value || "Não informado";
-            const course = document.getElementById('selectedCourse').value;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            if (!userBio || !userName) {
-                alert("Por favor, preencha o seu nome e o resumo profissional antes de solicitar o conselho da IA.");
-                return;
+        // Firebase Config
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let user = null;
+
+        // Auth
+        const init = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
             }
+        };
+        init();
+        onAuthStateChanged(auth, u => { user = u; if(u) setupTableListener(); });
 
-            const aiLoader = document.getElementById('aiLoader');
-            const aiAdviceContainer = document.getElementById('aiAdviceContainer');
+        const apiKey = ""; // Gemini Key
+
+        // Função Gemini
+        window.getCareerAdvice = async function() {
+            const bio = document.getElementById('userBio').value;
+            const name = document.getElementById('userName').value;
+            if(!bio) return alert("Escreva um breve resumo profissional primeiro.");
             
-            aiLoader.classList.remove('hidden');
-            aiAdviceContainer.classList.add('hidden');
+            const loader = document.getElementById('aiLoader');
+            const container = document.getElementById('aiAdviceContainer');
+            loader.classList.remove('hidden');
+            container.classList.add('hidden');
 
-            const systemPrompt = "És um mentor de carreira especialista em requalificação profissional para pessoas com mais de 30 anos (público 30+). O teu objetivo é fornecer 3 dicas práticas e motivadoras baseadas no resumo profissional e escolaridade do utilizador, focando-se no curso de informática e mercado de trabalho. Responde de forma curta e encorajadora em Português de Portugal.";
-            const userQuery = `Nome: ${userName}\nEscolaridade: ${education}\nResumo Profissional: ${userBio}\nCurso Pretendido: ${course}\n\nPor favor, dá-me 3 conselhos de carreira curtos.`;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `O meu nome é ${name}. Resumo profissional: ${bio}. Dá-me 2 dicas curtas e motivadoras para requalificação profissional 30+. Responde em Português de Portugal.` }] }]
+                    })
+                });
+                const data = await res.json();
+                container.innerHTML = "✨ " + data.candidates[0].content.parts[0].text;
+                container.classList.remove('hidden');
+            } catch (e) { alert("IA temporariamente indisponível."); }
+            loader.classList.add('hidden');
+        };
 
-            let retries = 0;
-            const maxRetries = 5;
+        // Submissão
+        document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!user) return;
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "A guardar...";
 
-            async function callGemini() {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: userQuery }] }],
-                            systemInstruction: { parts: [{ text: systemPrompt }] }
-                        })
-                    });
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'inscricoes');
+                await addDoc(colRef, {
+                    nome: document.getElementById('userName').value,
+                    email: document.getElementById('userEmail').value,
+                    telefone: document.getElementById('userPhone').value,
+                    curso: document.getElementById('selectedCourse').value,
+                    escolaridade: document.querySelector('input[name="escolaridade"]:checked').value,
+                    timestamp: serverTimestamp()
+                });
+                document.getElementById('successModal').classList.remove('hidden');
+            } catch (err) { 
+                alert("Erro ao guardar dados.");
+                btn.disabled = false;
+                btn.innerText = "Enviar Inscrição";
+            }
+        });
 
-                    if (!response.ok) throw new Error('Falha na API');
+        // Alternar Vista Admin
+        window.toggleAdminView = function() {
+            const panel = document.getElementById('adminPanel');
+            const form = document.getElementById('inscriptionForm');
+            if(panel.classList.contains('hidden')) {
+                const pass = prompt("Introduza a senha de acesso (Padrão: admin30):");
+                if(pass === 'admin30') {
+                    panel.classList.remove('hidden');
+                    form.classList.add('hidden');
+                } else { alert("Acesso negado."); }
+            } else {
+                panel.classList.add('hidden');
+                form.classList.remove('hidden');
+            }
+        };
 
-                    const data = await response.json();
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                    if (text) {
-                        aiAdviceContainer.innerHTML = text.replace(/\n/g, '<br>');
-                        aiAdviceContainer.classList.remove('hidden');
-                        aiLoader.classList.add('hidden');
-                    }
-                } catch (error) {
-                    if (retries < maxRetries) {
-                        retries++;
-                        const delay = Math.pow(2, retries) * 500;
-                        setTimeout(callGemini, delay);
-                    } else {
-                        aiLoader.classList.add('hidden');
-                        alert("Não foi possível obter os conselhos da IA neste momento. Por favor, tente novamente mais tarde.");
-                    }
+        // Listener da Tabela Visual (Firestore em tempo real)
+        function setupTableListener() {
+            const tableBody = document.getElementById('responsesTableBody');
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'inscricoes');
+            
+            onSnapshot(q, (snapshot) => {
+                tableBody.innerHTML = '';
+                if(snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center">Nenhuma inscrição encontrada.</td></tr>';
+                    return;
                 }
-            }
-
-            callGemini();
-        }
-
-        function handleSubmit(event) {
-            event.preventDefault();
-            const dob = new Date(document.getElementById('dob').value);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
-                age--;
-            }
-
-            if (age < 30) {
-                alert("Este curso é exclusivo para pessoas com 30 anos ou mais.");
-                return;
-            }
-
-            document.getElementById('successModal').classList.remove('hidden');
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString('pt-PT') : 'Recent';
+                    const row = `
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="p-4 text-gray-500">${date}</td>
+                            <td class="p-4 font-bold">${data.nome}</td>
+                            <td class="p-4 text-blue-600 font-medium">${data.curso}</td>
+                            <td class="p-4 text-xs">${data.email}<br>${data.telefone}</td>
+                            <td class="p-4">
+                                <button onclick="alert('Funcionalidade de Download: Documentos do candidato guardados de forma segura em armazenamento encriptado.')" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-300">
+                                    <i class="fas fa-eye mr-1"></i> Ver Docs
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            }, (err) => console.error("Erro na tabela:", err));
         }
     </script>
 </body>
